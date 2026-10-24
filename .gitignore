@@ -7,3 +7,8 @@
 # Dependencies and local OS/editor files
 node_modules/
 .DS_Store
+
+# Playwright output
+test-results/
+playwright-report/
+blob-report/

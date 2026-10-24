@@ -9,7 +9,13 @@ const allow=new Set(['/','/index.html','/app.js','/enhancements.css','/privacy.h
 const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.txt':'text/plain; charset=utf-8'};
 function createServer(){
   return http.createServer(async(req,res)=>{
-  const url=new URL(req.url,'http://localhost');
+  let url;
+  try{
+    url=new URL(req.url,'http://localhost');
+  }catch{
+    res.writeHead(400,{'Connection':'close'});
+    return res.end('Bad request');
+  }
   if(url.pathname==='/api/lead')return handler(req,res);
   if(req.method!=='GET'&&req.method!=='HEAD'){res.writeHead(405);return res.end();}
   let pathname;
