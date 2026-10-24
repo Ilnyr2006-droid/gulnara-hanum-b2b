@@ -7,7 +7,8 @@ const handler=require('./api/lead');
 const root=__dirname;
 const allow=new Set(['/','/index.html','/app.js','/enhancements.css','/privacy.html','/robots.txt','/llms.txt']);
 const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.txt':'text/plain; charset=utf-8'};
-http.createServer(async(req,res)=>{
+function createServer(){
+  return http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');
   if(url.pathname==='/api/lead')return handler(req,res);
   if(req.method!=='GET'&&req.method!=='HEAD'){res.writeHead(405);return res.end();}
@@ -23,4 +24,13 @@ http.createServer(async(req,res)=>{
     if(req.method==='HEAD')return res.end();
     fs.createReadStream(file).pipe(res);
   });
-}).listen(Number(process.env.PORT||3000),process.env.HOST||'127.0.0.1',()=>console.log('Server listening on '+(process.env.HOST||'127.0.0.1')+':'+(process.env.PORT||3000)));
+  });
+}
+
+if(require.main===module){
+  const host=process.env.HOST||'127.0.0.1';
+  const port=Number(process.env.PORT||3000);
+  createServer().listen(port,host,()=>console.log('Server listening on '+host+':'+port));
+}
+
+module.exports={createServer};

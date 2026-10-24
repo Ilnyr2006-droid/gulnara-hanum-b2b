@@ -69,6 +69,10 @@ async function handler(req,res){
   if(!checkOrigin(req))return reply(res,403,{ok:false,error:'Некорректный источник запроса'});
   if(!req.headers['content-type']?.toLowerCase().startsWith('application/json'))
     return reply(res,415,{ok:false,error:'Ожидается JSON'});
+  // Fail closed before parsing or validating any personal data until the
+  // operator has explicitly approved the actual processing arrangement.
+  if(process.env.PERSONAL_DATA_PROCESSING_APPROVED!=='true')
+    return reply(res,503,{ok:false,error:'Отправка заявок отключена до утверждения обработки персональных данных'});
   if(limitIp(req))return reply(res,429,{ok:false,error:'Слишком много запросов'});
   try{
     const lead=validate(await loadBody(req));

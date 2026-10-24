@@ -2,9 +2,14 @@
 
 // Progressive enhancement only: all descriptive content exists in HTML without JS.
 const models = [
-  {id:'top', name:'Верх комплекта термобелья'},
-  {id:'breeches', name:'Бриджи (удлинённые шорты)'},
-  {id:'stirrup-bottoms', name:'Кальсоны со штрипками'}
+  {sku:'ЛПШМ-2026-44-48', name:'Лонгслив с удлинённым рукавом', size:'44–48, российский размер'},
+  {sku:'ЛПШМ-2026-50-54', name:'Лонгслив с удлинённым рукавом', size:'50–54, российский размер'},
+  {sku:'ШПШМ-2026-46-48', name:'Бриджи (удлинённые шорты)', size:'46–48, российский размер'},
+  {sku:'ШПШМ-2026-50-52', name:'Бриджи (удлинённые шорты)', size:'50–52, российский размер'},
+  {sku:'ШПШМ-2026-54-56', name:'Бриджи (удлинённые шорты)', size:'54–56, российский размер'},
+  {sku:'КПШМ-2026-1', name:'Кальсоны со штрипками', size:'OneSize, российский размер 46–56; ростовая группа 1 — 158–170 см'},
+  {sku:'КПШМ-2026-2', name:'Кальсоны со штрипками', size:'OneSize, российский размер 46–56; ростовая группа 2 — 170–182 см'},
+  {sku:'КПШМ-2026-3', name:'Кальсоны со штрипками', size:'OneSize, российский размер 46–56; ростовая группа 3 — 182–194 см'}
 ];
 const $ = (id) => document.getElementById(id);
 const cart = new Map();
@@ -35,13 +40,14 @@ function renderCart(){
     selectedItems.appendChild(p);
   }
   for(const [modelId,qty] of cart){
-    const info=models.find(item=>item.id===modelId);
+    const info=models.find(item=>item.sku===modelId);
     const row=document.createElement('div');row.className='cart-row';
     const text=document.createElement('div');text.className='cart-row-label';
     const strong=document.createElement('strong');strong.textContent=info.name;
-    text.append(strong);
+    const detail=document.createElement('small');detail.textContent=`${info.size} · ${info.sku}`;
+    text.append(strong,detail);
     const input=document.createElement('input');input.type='number';input.min='1';input.max='99999';input.step='1';input.inputMode='numeric';input.value=qty;
-    input.setAttribute('aria-label',`Количество для ${info.name}`);
+    input.setAttribute('aria-label',`Количество: ${info.name}, ${info.size}, артикул ${info.sku}`);
     input.addEventListener('change',()=>{
       const parsed=quantity(input.value);
       if(!parsed){input.value=cart.get(modelId);feedback.textContent='Укажите целое количество от 1 до 99 999.';return;}
@@ -50,14 +56,14 @@ function renderCart(){
       cart.set(modelId,parsed);input.value=String(parsed);updateSummary();
     });
     const remove=document.createElement('button');remove.type='button';remove.className='cart-remove';remove.textContent='×';
-    remove.setAttribute('aria-label',`Удалить ${info.name}`);
+    remove.setAttribute('aria-label',`Удалить ${info.name}, ${info.size}, артикул ${info.sku}`);
     remove.addEventListener('click',()=>{cart.delete(modelId);renderCart();});
     row.append(text,input,remove);selectedItems.appendChild(row);
   }
   updateSummary();
 }
 function addModel(modelId,qty=10){
-  if(!models.some(item=>item.id===modelId)) return false;
+  if(!models.some(item=>item.sku===modelId)) return false;
   if(!quantity(qty)){hint.textContent='Количество должно быть целым числом от 1 до 99 999.';return false;}
   const next=(cart.get(modelId)||0)+qty;
   if(next>99999){hint.textContent='Для одной модели можно указать не больше 99 999 изделий.';return false;}
@@ -82,8 +88,8 @@ function buildMessage(){
   if(withItems){
     lines.push('', 'Состав запрашиваемой партии:');
     for(const [modelId,qty] of cart){
-      const item=models.find(x=>x.id===modelId);
-      lines.push(`— ${item.name} — ${qty} шт.`);
+      const item=models.find(x=>x.sku===modelId);
+      lines.push(`— ${item.name}, ${item.size} — артикул ${item.sku} — ${qty} шт.`);
     }
     lines.push(`Итого: ${countTotal()} шт.`);
   }else{
@@ -94,14 +100,42 @@ function buildMessage(){
   lines.push('','Пожалуйста, уточните цены, наличие размеров и комплектацию для выбранной модели и партии, сроки и условия доставки.');
   return lines.join('\n');
 }
-function validateQuote(){
-  if(cart.size>0 && (countTotal()<10 || countTotal()>200000)){
-    feedback.textContent='Для расчёта партии укажите суммарно от 10 до 200 000 изделий.';
-    feedback.classList.remove('ready');
-    select.focus();return false;
+function validateQuote({requireMinimum=true}={}){
+  if(!cart.size){
+    hint.textContent='Сначала добавьте хотя бы один артикул в состав заявки.';
+    select.focus();return null;
   }
-  if(!form.reportValidity())return false;
-  return true;
+  if(cart.size>models.length){
+    hint.textContent='Проверьте состав заявки: в каталоге указаны восемь артикулов.';
+    return null;
+  }
+  const items=[];
+  for(const [sku,qty] of cart){
+    const model=models.find(item=>item.sku===sku);
+    const parsed=quantity(qty);
+    if(!model||!parsed){
+      hint.textContent='Проверьте выбранные артикулы и количество для каждой позиции.';
+      return null;
+    }
+    items.push({sku,qty:parsed,model});
+  }
+  const itemTotal=items.reduce((sum,item)=>sum+item.qty,0);
+  if(itemTotal>200000 || (requireMinimum && itemTotal<10)){
+    feedback.textContent=itemTotal>200000
+      ? 'Общее количество не может превышать 200 000 изделий.'
+      : 'Для расчёта партии укажите суммарно от 10 до 200 000 изделий.';
+    feedback.classList.remove('ready');
+    select.focus();return null;
+  }
+  return items;
+}
+function buildQuoteSummary(items){
+  const lines=['Состав заявки:'];
+  for(const {sku,qty,model} of items){
+    lines.push(`— ${model.name}, ${model.size} — артикул ${sku} — ${qty} шт.`);
+  }
+  lines.push(`Итого: ${items.reduce((sum,item)=>sum+item.qty,0)} шт.`);
+  return lines.join('\n');
 }
 // Requests are delivered through the same-origin backend, never through a public API key.
 // Preserve a mailto fallback for local preview and cleartext IP staging.
@@ -174,9 +208,9 @@ priceForm.addEventListener('submit',event=>{
 });
 form.addEventListener('submit',event=>{
   event.preventDefault();
-  if(!cart.size){hint.textContent='Для расчёта добавьте хотя бы одну модель. Для общего прайса используйте короткую форму выше.';select.focus();return;}
-  if(!validateQuote())return;
-  const items=Array.from(cart,([sku,qty])=>({sku,qty}));
+  const selectedItems=validateQuote();
+  if(!selectedItems || !form.reportValidity())return;
+  const items=selectedItems.map(({sku,qty})=>({sku,qty}));
   const payload={
     contact:$('contact').value.trim(),email:$('email').value.trim(),
     phone:$('phone').value.trim(),
@@ -188,8 +222,9 @@ form.addEventListener('submit',event=>{
   }});
 });
 $('copy-quote').addEventListener('click',async()=>{
-  if(!validateQuote())return;
-  const text=buildMessage();
+  const selectedItems=validateQuote({requireMinimum:false});
+  if(!selectedItems)return;
+  const text=buildQuoteSummary(selectedItems);
   try{
     if(navigator.clipboard && window.isSecureContext){await navigator.clipboard.writeText(text);}
     else{
@@ -197,7 +232,7 @@ $('copy-quote').addEventListener('click',async()=>{
       try{el.focus();el.select();if(!document.execCommand('copy'))throw Error('copy failed');}
       finally{el.remove();}
     }
-    hint.textContent='Текст заявки скопирован. Его можно вставить в письмо или мессенджер.';
+    hint.textContent='Состав заявки скопирован. Его можно вставить в письмо или мессенджер.';
   }catch(error){hint.textContent='Автоматическое копирование недоступно в этом браузере. Попробуйте кнопку подготовки письма.';}
 });
 renderCart();

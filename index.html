@@ -674,7 +674,7 @@
         <div class="quote-intro">
           <p class="eyebrow">Запрос</p>
           <h2 id="quote-title">Начнём<br><em>с вашей партии.</em></h2>
-          <p>Уже знаете, какие модели нужны? Выберите их и укажите количество. Размеры и комплектацию уточним при расчёте партии. Для общего прайса есть <a href="#price-request">короткая форма выше</a>.</p>
+          <p>Уже знаете, какие модели нужны? Выберите точный артикул и укажите количество. Размерный вариант или ростовая группа будут указаны в составе заявки. Для общего прайса есть <a href="#price-request">короткая форма выше</a>.</p>
           <div class="quote-note">
             <span class="quote-note-number">10<span>+</span></span>
             <span>изделий в смешанной партии — минимальный заявленный объём заказа</span>
@@ -688,18 +688,29 @@
         <form class="quote-form" id="rfq-form" action="/api/lead" method="post">
           <div class="form-topline"><span>Оптовая заявка</span></div>
           <h3>Расчёт вашей партии</h3>
-          <p class="quote-optional-note">Добавьте одну или несколько моделей и укажите количество. Артикул и ростовую группу можно указать в комментарии. Минимальная смешанная партия — 10 шт.; наличие вариантов уточним для партии.</p>
+          <p class="quote-optional-note">Выберите один или несколько артикулов и укажите количество. Размерный вариант и ростовая группа попадут в заявку автоматически. Минимальная смешанная партия — 10 шт.; наличие вариантов уточним для партии.</p>
           <div class="model-picker">
-            <label class="form-field"><span>Модель</span>
-              <select id="model-select" aria-label="Выберите модель">
-                <option value="">Выберите модель</option>
-                <option value="top">Верх комплекта термобелья</option>
-                <option value="breeches">Бриджи (удлинённые шорты)</option>
-                <option value="stirrup-bottoms">Кальсоны со штрипками</option>
+            <label class="form-field"><span>Модель, размер и артикул</span>
+              <select id="model-select">
+                <option value="">Выберите артикул</option>
+                <optgroup label="Лонгслив с удлинённым рукавом">
+                  <option value="ЛПШМ-2026-44-48">ЛПШМ-2026-44-48 — 44–48, российский размер</option>
+                  <option value="ЛПШМ-2026-50-54">ЛПШМ-2026-50-54 — 50–54, российский размер</option>
+                </optgroup>
+                <optgroup label="Бриджи (удлинённые шорты)">
+                  <option value="ШПШМ-2026-46-48">ШПШМ-2026-46-48 — 46–48, российский размер</option>
+                  <option value="ШПШМ-2026-50-52">ШПШМ-2026-50-52 — 50–52, российский размер</option>
+                  <option value="ШПШМ-2026-54-56">ШПШМ-2026-54-56 — 54–56, российский размер</option>
+                </optgroup>
+                <optgroup label="Кальсоны со штрипками">
+                  <option value="КПШМ-2026-1">КПШМ-2026-1 — OneSize, 46–56; ростовая группа 1 — 158–170 см</option>
+                  <option value="КПШМ-2026-2">КПШМ-2026-2 — OneSize, 46–56; ростовая группа 2 — 170–182 см</option>
+                  <option value="КПШМ-2026-3">КПШМ-2026-3 — OneSize, 46–56; ростовая группа 3 — 182–194 см</option>
+                </optgroup>
               </select>
             </label>
             <label class="form-field qty-field"><span>Количество, шт.</span><input id="model-qty" type="number" min="1" max="99999" step="1" value="10" inputmode="numeric"></label>
-            <button type="button" id="add-model" class="add-item-btn" aria-label="Добавить модель в заявку">Добавить +</button>
+            <button type="button" id="add-model" class="add-item-btn" aria-label="Добавить выбранный артикул в заявку">Добавить +</button>
           </div>
           <div class="selected-items" id="selected-items" aria-live="polite"><p class="empty-cart">Модели не выбраны. Можно запросить общий прайс или добавить модели для расчёта партии.</p></div>
           <div class="qty-total"><span>Итого в заявке</span><strong id="total-qty">0 шт.</strong></div>
@@ -710,7 +721,7 @@
             <label class="form-field"><span>Email *</span><input id="email" name="email" type="email" autocomplete="email" placeholder="name@company.ru" required maxlength="160"></label>
             <label class="form-field form-field--full"><span>Телефон</span><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+7 ..." maxlength="40"></label>
           </div>
-          <label class="form-field form-field--full"><span>Комментарий</span><textarea id="comment" name="comment" placeholder="Город доставки, артикулы и размеры, пожелания по комплектации, образцам или СТМ" rows="3" maxlength="800"></textarea></label>
+          <label class="form-field form-field--full"><span>Комментарий</span><textarea id="comment" name="comment" placeholder="Город доставки, пожелания по комплектации, образцам или СТМ" rows="3" maxlength="800"></textarea></label>
           <label class="anti-bot-field" aria-hidden="true">Ваш сайт <input name="website" tabindex="-1" autocomplete="off"></label>
           <label class="consent-field"><input name="consent" type="checkbox" required><span>Согласен(на) на обработку данных для ответа на запрос. <a href="privacy.html" target="_blank" rel="noopener">Подробнее о данных</a>.</span></label>
           <div class="form-actions">

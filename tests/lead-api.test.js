@@ -5,7 +5,9 @@ const handler=require('../api/lead');
 
 test('ignores caller-supplied X-Real-IP unless trusted ingress is explicitly enabled',async()=>{
   const previous=process.env.TRUST_X_REAL_IP;
+  const previousApproval=process.env.PERSONAL_DATA_PROCESSING_APPROVED;
   process.env.TRUST_X_REAL_IP='false';
+  process.env.PERSONAL_DATA_PROCESSING_APPROVED='true';
   try{
     const remoteAddress=`test-socket-${process.pid}-${Date.now()}`;
     const statuses=[];
@@ -34,5 +36,7 @@ test('ignores caller-supplied X-Real-IP unless trusted ingress is explicitly ena
   }finally{
     if(previous===undefined)delete process.env.TRUST_X_REAL_IP;
     else process.env.TRUST_X_REAL_IP=previous;
+    if(previousApproval===undefined)delete process.env.PERSONAL_DATA_PROCESSING_APPROVED;
+    else process.env.PERSONAL_DATA_PROCESSING_APPROVED=previousApproval;
   }
 });
