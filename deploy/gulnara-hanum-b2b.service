@@ -1,0 +1,20 @@
+[Unit]
+Description=Gulnara Hanum B2B landing application
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/gulnara-hanum-b2b
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=3015
+Environment=TRUST_X_REAL_IP=true
+EnvironmentFile=-/etc/gulnara-hanum-b2b.env
+ExecStart=/usr/bin/node /var/www/gulnara-hanum-b2b/server.js
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

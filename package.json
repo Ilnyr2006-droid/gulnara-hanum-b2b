@@ -1,0 +1,8 @@
+{
+  "name": "gulnara-hanum-b2b-site",
+  "version": "5.0.0",
+  "private": true,
+  "description": "Gulnara Hanum merino B2B site with secure email lead endpoint",
+  "scripts": {"start":"node server.js", "test":"node --test tests/*.test.js"},
+  "engines": {"node":">=20"}
+}
