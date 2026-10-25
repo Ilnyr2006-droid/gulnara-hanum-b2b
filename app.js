@@ -259,6 +259,3 @@ document.addEventListener('keydown',event=>{
     mobileToggle.focus();
   }
 });
-
-// Mark enhanced controls active only after all handlers were registered.
-document.documentElement.classList.add('has-js');
