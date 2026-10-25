@@ -35,6 +35,7 @@ npm start
 - `deploy/gulnara-hanum-b2b.service` запускает Node только на `127.0.0.1:3015`;
 - `deploy/gulnara-hanum-b2b-rate-limit.nginx` задаёт ограничение запросов в `http`-контексте Nginx;
 - `deploy/gulnara-hanum-b2b-8095.nginx` проксирует только `/api/lead` и публикует каталог `public`.
+- IP-preview на порту 8095 отвечает с `X-Robots-Tag: noindex, nofollow`; не переносите этот заголовок на канонический HTTPS-хост.
 - `deploy/gulnara-hanum-b2b-https.nginx.template` — шаблон для боевого домена: HTTP-редирект, TLS, API и будущий `sitemap.xml`. До подстановки канонического домена включать его нельзя.
 
 Перед включением сайта создайте каталог `public` рядом с исходниками и скопируйте в него только `index.html`, `app.js`, `enhancements.css`, `privacy.html`, `robots.txt`, `llms.txt` и `assets/`. Не публикуйте в веб-каталоге `server.js`, `api/`, `lib/`, `.env.example`, `README.md` или `DEPLOY.md`.
